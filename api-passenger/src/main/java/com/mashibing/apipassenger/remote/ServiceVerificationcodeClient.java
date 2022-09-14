@@ -12,4 +12,6 @@ public interface ServiceVerificationcodeClient {
 
     @RequestMapping(method = RequestMethod.GET,value = "/numberCode/{size}")
     ResponseResult<NumberCodeResponse> getNumberCode(@PathVariable("size") int size);
+
+
 }
