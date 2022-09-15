@@ -2,11 +2,13 @@ package com.mashibing.apipassenger.service;
 
 import com.mashibing.apipassenger.remote.ServicePassengerUserClient;
 import com.mashibing.internal.common.CommonStatusEnum;
+import com.mashibing.internal.common.IdentityConstants;
 import com.mashibing.internal.dto.ResponseResult;
 import com.mashibing.internal.request.VerificationCodeDTO;
 import com.mashibing.internal.response.NumberCodeResponse;
 import com.mashibing.apipassenger.remote.ServiceVerificationcodeClient;
 import com.mashibing.internal.response.TokenResponse;
+import com.mashibing.internal.util.JwtUtils;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,11 +71,13 @@ public class VerificationCodeService {
         //todo 验证码校验完成以后就要马上把验证过的验证吗删除掉 主要是看产品设计
 
         //todo 颁发令牌
+        String generatorToken = JwtUtils.generatorToken(passengerPhone, IdentityConstants.PASSENGER_IDENTITY);
+
 
         // 响应
         TokenResponse tokenResponse = new TokenResponse();
        //设置accessToken
-        tokenResponse.setAssessToken("accessToken value");
+        tokenResponse.setAssessToken(generatorToken);
         tokenResponse.setRefreshToken("refreshToken value");
         //设置refreshToken
         return ResponseResult.success(tokenResponse);

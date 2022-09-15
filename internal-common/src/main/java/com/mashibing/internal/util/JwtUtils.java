@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.mashibing.internal.dto.TokenResult;
 import lombok.val;
 
 import java.security.Key;
@@ -19,13 +20,19 @@ public class JwtUtils {
     //salt
     private static final String SIGN = "CPFmsb!@#$$";
     private static final String JWT_KEY_PHONE="phone";
+    //1.乘客 2 司机
+    private static final String JWT_KEY_IDENTITY="identity";
+
+    //手机号类型 司机和 乘客区分
 
     //生成token
-    public static String generatorToken(String passengerPhone){
+    public static String generatorToken(String passengerPhone,String identity){
         Map<String,String> map = new HashMap<>();
         map.put(JWT_KEY_PHONE,passengerPhone);
+        map.put(JWT_KEY_IDENTITY,identity);
         //token过期时间
         Calendar calendar = Calendar.getInstance();
+        //当表当月中的哪一天
         calendar.add(Calendar.DATE,1);// +1 天
         Date date = calendar.getTime();
 
@@ -41,17 +48,24 @@ public class JwtUtils {
         return sign;
     }
     //解析token
-    public static String parseToken(String token){
+    public static TokenResult parseToken(String token){
         DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256(SIGN)).build().verify(token);
-        Claim claim = decodedJWT.getClaim(JWT_KEY_PHONE);
-        return claim.asString();
+        String phone = decodedJWT.getClaim(JWT_KEY_PHONE).toString();
+        String identity = decodedJWT.getClaim(JWT_KEY_IDENTITY).toString();
+        TokenResult tokenResult  = new TokenResult();
+        tokenResult.setIdentity(identity);
+        tokenResult.setPhone(phone);
+        return tokenResult;
     }
 
     public static void main(String[] args) {
 
-        String token = generatorToken("13438040105");
+        String token = generatorToken("13438040105","1");
+
         System.out.println("生成jwtToken"+token);
-        System.out.println("解析后的"+parseToken(token));
+        System.out.println("解析-----------------");
+        TokenResult tokenResult = parseToken(token);
+        System.out.println(tokenResult.getIdentity()+":"+tokenResult.getPhone());
     }
 
 
