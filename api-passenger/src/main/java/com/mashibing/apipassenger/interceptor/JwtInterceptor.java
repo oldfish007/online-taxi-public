@@ -28,6 +28,7 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String resultString="";
@@ -43,25 +44,7 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
         }
         String[] tokens = bearerToken.split(" ");
         String token = tokens[1];
-        TokenResult tokenResult = null;
-        try{
-            tokenResult = JwtUtils.parseToken(token);
-        }catch (SignatureVerificationException e){
-            resultString="token sign error";
-            result=false;
-        }catch(TokenExpiredException e){
-            resultString="token time out";
-            result=false;
-        }catch(AlgorithmMismatchException e){
-            resultString="token AlgorithmMismatchException";
-            result=false;
-        }catch(InvalidClaimException e){
-            resultString="token InvalidClaimException";
-            result=false;
-        }catch(JWTDecodeException e){
-            resultString="token JWTDecodeException";
-            result=false;
-        }
+        TokenResult tokenResult = JwtUtils.checkCode(token);
         //从redis中取出token
         if(tokenResult==null){
             resultString="token invalid";

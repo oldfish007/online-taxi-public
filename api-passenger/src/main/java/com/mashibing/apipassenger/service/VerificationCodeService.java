@@ -81,9 +81,10 @@ public class VerificationCodeService {
         String accessTokenKey = RedisPrefixUtils.generatorTokenKey(passengerPhone, IdentityConstants.PASSENGER_IDENTITY, TokenConstants.ACCESS_TOKEN_TYPE);
         String refreshTokenKey = RedisPrefixUtils.generatorTokenKey(passengerPhone, IdentityConstants.PASSENGER_IDENTITY, TokenConstants.REFRESH_TOKEN_TYPE);
         //REDIS分别放入accessToken   Refresh Token
-        stringRedisTemplate.opsForValue().set(accessTokenKey,generatorAccessToken,30,TimeUnit.DAYS);
-        stringRedisTemplate.opsForValue().set(refreshTokenKey,generatorRefreshToken,31,TimeUnit.DAYS);
-
+        /*stringRedisTemplate.opsForValue().set(accessTokenKey,generatorAccessToken,30,TimeUnit.DAYS);
+        stringRedisTemplate.opsForValue().set(refreshTokenKey,generatorRefreshToken,31,TimeUnit.DAYS);*/
+        stringRedisTemplate.opsForValue().set(accessTokenKey,generatorAccessToken,15,TimeUnit.SECONDS);
+        stringRedisTemplate.opsForValue().set(refreshTokenKey,generatorRefreshToken,50,TimeUnit.SECONDS);
         // 响应
         TokenResponse tokenResponse = new TokenResponse();
        //设置accessToken
@@ -92,11 +93,7 @@ public class VerificationCodeService {
         //设置refreshToken
         return ResponseResult.success(tokenResponse);
 
-
-
     }
 
-    private String generatorKey(String passengerPhone) {
-        return verificationCodePrefix + passengerPhone;
-    }
+
 }

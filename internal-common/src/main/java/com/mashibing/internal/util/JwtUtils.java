@@ -3,6 +3,7 @@ package com.mashibing.internal.util;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.*;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.mashibing.internal.common.TokenConstants;
@@ -25,19 +26,22 @@ public class JwtUtils {
     private static final String JWT_KEY_IDENTITY="identity";
     private static final String JWT_TOKEN_TYPE="tokenType";
     //手机号类型 司机和 乘客区分
-
+    private static final String JWT_TOKEN_TIME="tokenTime";
     //生成token
     public static String generatorToken(String passengerPhone,String identity,String tokenType){
         Map<String,String> map = new HashMap<>();
         map.put(JWT_KEY_PHONE,passengerPhone);
         map.put(JWT_KEY_IDENTITY,identity);
         map.put(JWT_TOKEN_TYPE,tokenType);
+
         //token过期时间
         Calendar calendar = Calendar.getInstance();
         //当表当月中的哪一天
         calendar.add(Calendar.DATE,1);// +1 天
         Date date = calendar.getTime();
 
+        //生成的token每次都不一样
+        map.put(JWT_TOKEN_TIME,Calendar.getInstance().getTime().toString());
         JWTCreator.Builder builder = JWT.create();
         //整合map
         map.forEach((k,v)->{
@@ -59,6 +63,19 @@ public class JwtUtils {
         tokenResult.setPhone(phone);
         return tokenResult;
     }
+
+    //校验token
+    public static TokenResult checkCode(String token){
+        TokenResult tokenResult = null;
+        try{
+            tokenResult = JwtUtils.parseToken(token);
+        }catch (Exception e){
+
+        }
+        return tokenResult;
+    }
+
+
 
     public static void main(String[] args) {
 
