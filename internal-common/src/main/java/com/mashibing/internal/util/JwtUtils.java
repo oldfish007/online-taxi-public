@@ -50,8 +50,8 @@ public class JwtUtils {
     //解析token
     public static TokenResult parseToken(String token){
         DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256(SIGN)).build().verify(token);
-        String phone = decodedJWT.getClaim(JWT_KEY_PHONE).toString();
-        String identity = decodedJWT.getClaim(JWT_KEY_IDENTITY).toString();
+        String phone = decodedJWT.getClaim(JWT_KEY_PHONE).asString();
+        String identity = decodedJWT.getClaim(JWT_KEY_IDENTITY).asString();
         TokenResult tokenResult  = new TokenResult();
         tokenResult.setIdentity(identity);
         tokenResult.setPhone(phone);
@@ -61,7 +61,6 @@ public class JwtUtils {
     public static void main(String[] args) {
 
         String token = generatorToken("13438040105","1");
-
         System.out.println("生成jwtToken :"+token);
         System.out.println("解析-----------------");
         TokenResult tokenResult = parseToken(token);
