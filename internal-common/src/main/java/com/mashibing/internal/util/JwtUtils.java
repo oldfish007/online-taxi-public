@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.mashibing.internal.common.TokenConstants;
 import com.mashibing.internal.dto.TokenResult;
 import lombok.val;
 
@@ -22,14 +23,15 @@ public class JwtUtils {
     private static final String JWT_KEY_PHONE="phone";
     //1.乘客 2 司机
     private static final String JWT_KEY_IDENTITY="identity";
-
+    private static final String JWT_TOKEN_TYPE="tokenType";
     //手机号类型 司机和 乘客区分
 
     //生成token
-    public static String generatorToken(String passengerPhone,String identity){
+    public static String generatorToken(String passengerPhone,String identity,String tokenType){
         Map<String,String> map = new HashMap<>();
         map.put(JWT_KEY_PHONE,passengerPhone);
         map.put(JWT_KEY_IDENTITY,identity);
+        map.put(JWT_TOKEN_TYPE,tokenType);
         //token过期时间
         Calendar calendar = Calendar.getInstance();
         //当表当月中的哪一天
@@ -60,7 +62,7 @@ public class JwtUtils {
 
     public static void main(String[] args) {
 
-        String token = generatorToken("13438040105","1");
+        String token = generatorToken("13438040105","1", TokenConstants.ACCESS_TOKEN_TYPE);
         System.out.println("生成jwtToken :"+token);
         System.out.println("解析-----------------");
         TokenResult tokenResult = parseToken(token);

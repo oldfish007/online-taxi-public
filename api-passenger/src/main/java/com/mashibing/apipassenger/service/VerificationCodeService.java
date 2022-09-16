@@ -75,15 +75,20 @@ public class VerificationCodeService {
         //todo 验证码校验完成以后就要马上把验证过的验证吗删除掉 主要是看产品设计
 
         //todo 颁发令牌
-        String generatorToken = JwtUtils.generatorToken(passengerPhone, IdentityConstants.PASSENGER_IDENTITY);
+        String generatorAccessToken = JwtUtils.generatorToken(passengerPhone, IdentityConstants.PASSENGER_IDENTITY,TokenConstants.ACCESS_TOKEN_TYPE);
+        String generatorRefreshToken = JwtUtils.generatorToken(passengerPhone, IdentityConstants.PASSENGER_IDENTITY,TokenConstants.REFRESH_TOKEN_TYPE);
         //todo 把token存一个月到服务端的redis,一个月后客户端在传过来一个token反解析一下发现服务端没有了说明他不应该登录
         String accessTokenKey = RedisPrefixUtils.generatorTokenKey(passengerPhone, IdentityConstants.PASSENGER_IDENTITY, TokenConstants.ACCESS_TOKEN_TYPE);
-        stringRedisTemplate.opsForValue().set(accessTokenKey,generatorToken,30,TimeUnit.DAYS);
+        String refreshTokenKey = RedisPrefixUtils.generatorTokenKey(passengerPhone, IdentityConstants.PASSENGER_IDENTITY, TokenConstants.REFRESH_TOKEN_TYPE);
+        //REDIS分别放入accessToken   Refresh Token
+        stringRedisTemplate.opsForValue().set(accessTokenKey,generatorAccessToken,30,TimeUnit.DAYS);
+        stringRedisTemplate.opsForValue().set(refreshTokenKey,generatorRefreshToken,31,TimeUnit.DAYS);
+
         // 响应
         TokenResponse tokenResponse = new TokenResponse();
        //设置accessToken
-        tokenResponse.setAssessToken(generatorToken);
-        tokenResponse.setRefreshToken("refreshToken value");
+        tokenResponse.setAssessToken(generatorAccessToken);
+        tokenResponse.setRefreshToken(generatorRefreshToken);
         //设置refreshToken
         return ResponseResult.success(tokenResponse);
 
