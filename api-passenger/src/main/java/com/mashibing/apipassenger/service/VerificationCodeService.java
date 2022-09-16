@@ -3,12 +3,14 @@ package com.mashibing.apipassenger.service;
 import com.mashibing.apipassenger.remote.ServicePassengerUserClient;
 import com.mashibing.internal.common.CommonStatusEnum;
 import com.mashibing.internal.common.IdentityConstants;
+import com.mashibing.internal.common.TokenConstants;
 import com.mashibing.internal.dto.ResponseResult;
 import com.mashibing.internal.request.VerificationCodeDTO;
 import com.mashibing.internal.response.NumberCodeResponse;
 import com.mashibing.apipassenger.remote.ServiceVerificationcodeClient;
 import com.mashibing.internal.response.TokenResponse;
 import com.mashibing.internal.util.JwtUtils;
+import com.mashibing.internal.util.RedisPrefixUtils;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +36,8 @@ public class VerificationCodeService {
         ResponseResult<NumberCodeResponse> numberCodeResponse = serviceVerificationcodeClient.getNumberCode(6);
         int numberCode = numberCodeResponse.getData().getNumberCode();
         System.out.println("remote number code"+numberCode);
-        String key = generatorKey(passenagerPhone);
+        //String key = generatorKey(passenagerPhone);
+        String key =RedisPrefixUtils.generatorKeyByPhone(passenagerPhone,IdentityConstants.PASSENGER_IDENTITY);
         stringRedisTemplate.opsForValue().set(key,numberCode+"",2, TimeUnit.MINUTES);
         //todo 对接短信服务运营商
         return ResponseResult.success();
@@ -51,7 +54,8 @@ public class VerificationCodeService {
     public ResponseResult checkCode(String passengerPhone, String verificationCode) {
         // 根据手机号，去redis读取验证码
         // 生成key
-        String key = generatorKey(passengerPhone);
+        //String key = generatorKey(passengerPhone);
+        String key = RedisPrefixUtils.generatorKeyByPhone(passengerPhone,IdentityConstants.PASSENGER_IDENTITY);
         // 根据key获取value
         String codeForRedis = stringRedisTemplate.opsForValue().get(key);
         System.out.println("取出来的验证码"+codeForRedis);
@@ -72,8 +76,9 @@ public class VerificationCodeService {
 
         //todo 颁发令牌
         String generatorToken = JwtUtils.generatorToken(passengerPhone, IdentityConstants.PASSENGER_IDENTITY);
-
-
+        //todo 把token存一个月到服务端的redis,一个月后客户端在传过来一个token反解析一下发现服务端没有了说明他不应该登录
+        String accessTokenKey = RedisPrefixUtils.generatorTokenKey(passengerPhone, IdentityConstants.PASSENGER_IDENTITY, TokenConstants.ACCESS_TOKEN_TYPE);
+        stringRedisTemplate.opsForValue().set(accessTokenKey,generatorToken,30,TimeUnit.DAYS);
         // 响应
         TokenResponse tokenResponse = new TokenResponse();
        //设置accessToken

@@ -42,7 +42,7 @@ public class JwtUtils {
             builder.withClaim(k,v);
         });
         //整合过期时间
-        builder.withExpiresAt(date);
+       // builder.withExpiresAt(date);
         //生成token
         String sign = builder.sign(Algorithm.HMAC256(SIGN));
         return sign;
@@ -62,7 +62,7 @@ public class JwtUtils {
 
         String token = generatorToken("13438040105","1");
 
-        System.out.println("生成jwtToken"+token);
+        System.out.println("生成jwtToken :"+token);
         System.out.println("解析-----------------");
         TokenResult tokenResult = parseToken(token);
         System.out.println(tokenResult.getIdentity()+":"+tokenResult.getPhone());
