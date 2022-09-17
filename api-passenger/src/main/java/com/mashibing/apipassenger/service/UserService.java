@@ -1,20 +1,29 @@
 package com.mashibing.apipassenger.service;
 
+import com.mashibing.apipassenger.remote.ServicePassengerUserClient;
 import com.mashibing.internal.dto.PassengerUser;
+import com.mashibing.internal.dto.ResponseResult;
+import com.mashibing.internal.dto.TokenResult;
+import com.mashibing.internal.request.VerificationCodeDTO;
+import com.mashibing.internal.util.JwtUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class UserService {
 
-    public PassengerUser getUsers(String token){
-
-        //从库里面去取
-
-        PassengerUser passengerUser = new PassengerUser();
-        passengerUser.setPassengerName("张三");
-        passengerUser.setProfilePhoto("头像");
-
-        return passengerUser;
+    @Autowired
+    private ServicePassengerUserClient servicePassengerUserClient;
+    public ResponseResult getUsers(String accessToken){
+        log.info("accessToken"+accessToken);
+        //解析token
+        TokenResult tokenResult = JwtUtils.checkCode(accessToken);
+        log.info("手机号:"+tokenResult.getPhone());
+        //远程调用
+        ResponseResult<PassengerUser> result = servicePassengerUserClient.findUserByPhone(tokenResult.getPhone());
+        return ResponseResult.success(result.getData());
 
     }
 }

@@ -18,6 +18,11 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    /**
+     * 查询乘客信息
+     * @param request
+     * @return
+     */
     @GetMapping("/users")
     public ResponseResult users(HttpServletRequest request){
         String bearerToken = request.getHeader("Authorization");
@@ -29,12 +34,6 @@ public class UserController {
             return ResponseResult.fail(CommonStatusEnum.TOKEN_ERROR.getCode(),CommonStatusEnum.TOKEN_ERROR.getValue());
         }
         String token = tokens[1];
-        PassengerUser users = userService.getUsers(token);
-        ResponseResult result = new ResponseResult();
-        result.setCode(1);
-        result.setMessage("success");
-        result.setData(users);
-
-        return result;
+        return userService.getUsers(token);
     }
 }
